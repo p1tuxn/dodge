@@ -1,16 +1,17 @@
 import pygame
-from display_overlays import SCREEN_WIDTH, SCREEN_HEIGHT, miles_img, miles2_img, crouch_img, crouch2_img, jump_img, enemy_mask, miles_mask, miles2_mask, jump_mask,crouch_mask,crouch2_mask
-from src.player import Player
+
+from display_stuff import SCREEN_WIDTH, SCREEN_HEIGHT, enemy_mask, miles_mask, bg, font
 from src.enemy import Enemy
+from src.player import Player
 
 pygame.init()
 pygame.mixer.init()
 
-class Game():
+class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("dodge")
-        self.icon = pygame.image.load("assets/images/Man.png")
+        self.icon = pygame.image.load("assets/images/run1.png")
         pygame.display.set_icon(self.icon)
         self.clock = pygame.time.Clock()
         self.running = True
@@ -21,9 +22,8 @@ class Game():
         # load music
         pygame.mixer.music.load("assets/music/original-tetris-theme-tetris-soundtrack.wav")
         pygame.mixer.music.play(-1)
-
-        self.font = pygame.font.Font("freesansbold.ttf", 20)
-        self.pause_font = pygame.font.Font("freesansbold.ttf", 32)
+        self.pause_font = pygame.font.Font(font, 32)
+        self.font = pygame.font.Font(font, 20)
         self.player = Player()
         self.enemy = Enemy()
 
@@ -36,38 +36,44 @@ class Game():
         if miles_mask.overlap(enemy_mask, offset):
             self.game_over = True
 
-    def draw_bg(self):
-        height = self.screen.get_height()
-        for y in range(height):
-            ratio = y / height
-            r = int(0 * (1 - ratio) + 0 * ratio)
-            g = int(255 * (1 - ratio) + 0 * ratio)
-            b = int(255 * (1 - ratio) + 0 * ratio)
-            pygame.draw.line(self.screen, (r, g, b), (0, y), (self.screen.get_width(), y))
+    def draw_gameover_screen(self):
+        highscore = str(self.score_value)
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.fill((255, 105, 97))
+        overlay.set_alpha(128)
+        self.screen.blit(overlay, (0, 0))
+        pause_text = self.pause_font.render("Game Over", True, (255, 255, 255))
+        self.screen.blit(pause_text, (176, 123))
+        retry_text = self.font.render("Press R to Restart", True, (255, 255, 255))
+        self.screen.blit(retry_text, (162, 160))
+        quit_text = self.font.render("Press Q to Quit", True, (255, 255, 255))
+        self.screen.blit(quit_text, (183, 180))
+        score_text = self.font.render(f"highscore: {highscore}", True, (255, 255, 255))
+        self.screen.blit(score_text, (188, 94))
 
-    def draw_ground(self):
-        pygame.draw.line(self.screen, (255, 255, 255), (0, 170), (SCREEN_WIDTH, 170))
+    def draw_bg(self):
+        self.screen.blit(bg, (0, 0))
 
     def draw_score(self):
         score = self.font.render('score:' + str(self.score_value), True, (0, 0, 0))
-        self.screen.blit(score, (270, 20))
+        self.screen.blit(score, (380, 20))
 
     def draw_pause_menu(self):
         # Pause menu overlay
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay = pygame.Surface((200, 200))
         overlay.fill((0, 0, 0))
         overlay.set_alpha(128)
-        self.screen.blit(overlay, (0, 0))
+        self.screen.blit(overlay, (150, 55))
         pause_text = self.pause_font.render("PAUSED", True, (255, 255, 255))
-        self.screen.blit(pause_text, (130, 30))
+        self.screen.blit(pause_text, (185,123))
         resume_text = self.font.render("Press P to Resume", True, (255, 255, 255))
-        self.screen.blit(resume_text, (100, 70))
+        self.screen.blit(resume_text, (158, 160))
         quit_text = self.font.render("Press Q to Quit", True, (255, 255, 255))
-        self.screen.blit(quit_text, (100, 100))
+        self.screen.blit(quit_text, (172, 183))
 
     def run(self):
         while self.running:
-            self.clock.tick(60)
+            self.clock.tick(45)
             ticks = int(pygame.time.get_ticks() / 100)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -82,6 +88,14 @@ class Game():
                     if self.pause:
                         if event.key == pygame.K_q:
                             self.running = False
+                    if self.game_over:
+                        if event.key == pygame.K_q:
+                            self.running = False
+                        if event.key == pygame.K_r:
+                            ticks = 0
+                            self.game_over = False
+                            self.pause = False
+
 
             keys = pygame.key.get_pressed()
 
@@ -92,15 +106,15 @@ class Game():
                 self.collision()
 
             self.draw_bg()
-            self.draw_ground()
             self.enemy.draw(self.screen)
-            self.player.draw(self.screen, ticks, self.pause)
+            self.player.draw(self.screen, ticks, self.pause, self.game_over)
             self.draw_score()
             if self.pause:
                 self.draw_pause_menu()
+            if self.game_over:
+                self.draw_gameover_screen()
 
             pygame.display.update()
 
         pygame.quit()
-
 
