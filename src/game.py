@@ -65,7 +65,6 @@ class Game():
         quit_text = self.font.render("Press Q to Quit", True, (255, 255, 255))
         self.screen.blit(quit_text, (100, 100))
 
-
     def run(self):
         while self.running:
             self.clock.tick(60)
@@ -92,7 +91,6 @@ class Game():
                 self.enemy.update(ticks)
                 self.collision()
 
-            # Always draw the current state
             self.draw_bg()
             self.draw_ground()
             self.enemy.draw(self.screen)
@@ -104,4 +102,5 @@ class Game():
             pygame.display.update()
 
         pygame.quit()
+
 
