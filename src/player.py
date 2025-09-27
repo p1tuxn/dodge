@@ -45,7 +45,6 @@ class Player:
             else:
                 screen.blit(jump_img, (self.Miles_x, self.Miles_y))
         else:
-            # When not paused: Original animation logic
             if self.crouch and not self.jump and ticks % 2 == 0:
                 screen.blit(crouch_img, (self.Miles_x, self.Miles_y))
             elif self.crouch and not self.jump and ticks % 2 != 0:
@@ -56,4 +55,5 @@ class Player:
                 screen.blit(miles2_img, (self.Miles_x, self.Miles_y))
             elif self.jump and not self.crouch:
                 screen.blit(jump_img, (self.Miles_x, self.Miles_y))
+
 
