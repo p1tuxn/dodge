@@ -95,6 +95,9 @@ class Game:
                             ticks = 0
                             self.game_over = False
                             self.pause = False
+                            self.player = Player()
+                            self.enemy = Enemy()
+                            self.score_value = 1
 
 
             keys = pygame.key.get_pressed()
@@ -117,4 +120,3 @@ class Game:
             pygame.display.update()
 
         pygame.quit()
-
